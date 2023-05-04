@@ -1,41 +1,46 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace tagpic
 {
     public partial class Form1 : Form
     {
+        private const int WH_KEYBOARD_LL = 13;
+        private const int WM_KEYDOWN = 0x0100;
+
+        private IntPtr hookId = IntPtr.Zero;
+
         private const int BUTTON_HEIGHT = 30;
         private const int PANEL_WIDTH = 600;
         private const int PANEL_MARGIN = 10;
 
         private List<Image> images = new List<Image>();
         private System.Windows.Forms.Panel panel;
+        private bool isAddingImage = false;
 
         public Form1()
         {
             InitializeComponent();
             this.WindowState = FormWindowState.Maximized;
+            this.KeyPreview = true; // Set the KeyPreview property to true to enable detecting key presses on the form
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Add the "Fetch Image" button
-            Button button1 = new Button();
-            button1.Text = "Fetch Image";
-            button1.Dock = DockStyle.Top;
-            button1.Height = BUTTON_HEIGHT;
-            button1.Click += new EventHandler(button1_Click);
-            this.Controls.Add(button1);
+            hookId = SetHook(HookCallback);
 
             // Add the scrollable control
             ScrollableControl scrollableControl = new ScrollableControl();
-            scrollableControl.Dock = DockStyle.Bottom;
+            scrollableControl.Dock = DockStyle.Fill;
             scrollableControl.AutoScroll = true;
-            scrollableControl.Height = this.ClientSize.Height - button1.Height;
             this.Controls.Add(scrollableControl);
+            Debug.WriteLine("constructor fired");
+
 
             // Add the panel to the scrollable control
             this.panel = new Panel();
@@ -43,9 +48,8 @@ namespace tagpic
             this.panel.Margin = new Padding(PANEL_MARGIN);
             scrollableControl.Controls.Add(this.panel);
 
-            // Set the location of the panel and button
-            this.panel.Location = new Point((this.ClientSize.Width - this.panel.Width) / 2, button1.Bottom + PANEL_MARGIN);
-            button1.Top = this.panel.Bottom + PANEL_MARGIN;
+            // Set the location of the panel
+            this.panel.Location = new Point((scrollableControl.ClientSize.Width - this.panel.Width) / 2, PANEL_MARGIN);
 
             // Load any previously saved images
             string imageDir = Path.Combine(Directory.GetCurrentDirectory(), "Images");
@@ -58,35 +62,65 @@ namespace tagpic
             }
             display_images();
         }
-
-        private void button1_Click(object sender, EventArgs e)
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            try
+            UnhookWindowsHookEx(hookId);
+        }
+
+        private IntPtr SetHook(LowLevelKeyboardProc proc)
+        {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule)
             {
-                // Get the image from the clipboard
-                Image image = Clipboard.GetImage();
-
-                // Set the default file name and location
-                string fileName = "image_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
-                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", fileName);
-
-                // Create the directory if it doesn't exist
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                // Save the image to the file
-                image.Save(filePath);
-
-                // Add the image to the list
-                images.Insert(0, image);
-
-                // Display the images
-                display_images();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
             }
         }
+
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
+            {
+                int vkCode = Marshal.ReadInt32(lParam);
+                Debug.WriteLine(vkCode);
+
+                if (vkCode == (int)Keys.Insert && Clipboard.ContainsImage())
+                {
+                    // Handle the key press
+                    ImageConfirmationForm form = new ImageConfirmationForm(Clipboard.GetImage());
+                    DialogResult result = form.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        // Get the file path from the confirmation form
+                        string filePath = form.Tag as string;
+
+                        // Load the image from the file and add it to the list
+                        Image savedImage = form.image;
+                        this.images.Insert(0, savedImage);
+
+                        // Display the images
+                        display_images();
+                    }
+                }
+            }
+
+            return CallNextHookEx(hookId, nCode, wParam, lParam);
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
 
 
         private void display_images()
