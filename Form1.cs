@@ -92,6 +92,7 @@ namespace tagpic
                     {
                         // Handle the key press
                         ImageConfirmationForm form = new ImageConfirmationForm(Clipboard.GetImage());
+                        form.TopMost = true; // Set TopMost property to true
                         DialogResult result = form.ShowDialog();
                         if (result == DialogResult.OK)
                         {
@@ -111,7 +112,7 @@ namespace tagpic
             } catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return IntPtr.Zero;
+                return CallNextHookEx(hookId, nCode, wParam, lParam);
             }
         }
 

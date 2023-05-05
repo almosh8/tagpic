@@ -19,12 +19,13 @@
         public ImageConfirmationForm(Image image)
         {
             InitializeComponent();
+            this.WindowState = FormWindowState.Maximized;
 
             this.image = image;
             this.fileName = "image_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
 
 
-            this.ClientSize = new Size(FORM_WIDTH, FORM_HEIGHT);
+            //this.ClientSize = new Size(FORM_WIDTH, FORM_HEIGHT);
 
             // Add the picture box to display the image
             this.pictureBox = new PictureBox();
