@@ -80,32 +80,39 @@ namespace tagpic
 
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
+            try
             {
-                int vkCode = Marshal.ReadInt32(lParam);
-                Debug.WriteLine(vkCode);
-                Debug.WriteLine(Clipboard.ContainsImage());
-
-                if (vkCode == (int)Keys.Insert && Clipboard.ContainsImage())
+                if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
                 {
-                    // Handle the key press
-                    ImageConfirmationForm form = new ImageConfirmationForm(Clipboard.GetImage());
-                    DialogResult result = form.ShowDialog();
-                    if (result == DialogResult.OK)
-                    {
-                        // Get the file path from the confirmation form
-                        string filePath = form.Tag as string;
+                    int vkCode = Marshal.ReadInt32(lParam);
+                    Debug.WriteLine(vkCode);
+                    Debug.WriteLine(Clipboard.ContainsImage());
 
-                        // Load the image from the file and add it to the list
-                        Image savedImage = form.image;
-                        this.images.Insert(0, savedImage);
-                                                // Display the images
-                        display_images();
+                    if (vkCode == (int)Keys.Insert && Clipboard.ContainsImage())
+                    {
+                        // Handle the key press
+                        ImageConfirmationForm form = new ImageConfirmationForm(Clipboard.GetImage());
+                        DialogResult result = form.ShowDialog();
+                        if (result == DialogResult.OK)
+                        {
+                            // Get the file path from the confirmation form
+                            string filePath = form.Tag as string;
+
+                            // Load the image from the file and add it to the list
+                            Image savedImage = form.image;
+                            this.images.Insert(0, savedImage);
+                            // Display the images
+                            display_images();
+                        }
                     }
                 }
-            }
 
-            return CallNextHookEx(hookId, nCode, wParam, lParam);
+                return CallNextHookEx(hookId, nCode, wParam, lParam);
+            } catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return IntPtr.Zero;
+            }
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
