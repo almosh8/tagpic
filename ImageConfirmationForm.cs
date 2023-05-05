@@ -3,16 +3,18 @@
     public partial class ImageConfirmationForm : Form
     {
         private const int FORM_WIDTH = 500;
-        private const int FORM_HEIGHT = 300;
+        private const int FORM_HEIGHT = 350; // Increased form height to accommodate the new control
         private const int BUTTON_WIDTH = 75;
         private const int BUTTON_HEIGHT = 30;
         private const int MARGIN = 10;
 
         public Image image;
         private string fileName;
+        private string tags; // Added new field to store tags entered by the user
 
         private PictureBox pictureBox;
         private Label label;
+        private TextBox tagsTextBox; // Added new control for entering tags
         private Button yesButton;
         private Button noButton;
 
@@ -22,8 +24,7 @@
             this.WindowState = FormWindowState.Maximized;
 
             this.image = image;
-            this.fileName = "image_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
-
+            this.fileName = "image_" + DateTime.Now.ToString("yyyyMMddHHmmss"); // Removed ".png" extension from file name
 
             //this.ClientSize = new Size(FORM_WIDTH, FORM_HEIGHT);
 
@@ -42,6 +43,15 @@
             this.label.Dock = DockStyle.Top;
             this.label.Padding = new Padding(MARGIN);
             this.Controls.Add(this.label);
+
+            // Add the textbox for entering tags
+            this.tagsTextBox = new TextBox();
+            this.tagsTextBox.Width = FORM_WIDTH - (2 * MARGIN);
+            this.tagsTextBox.Height = BUTTON_HEIGHT;
+            this.tagsTextBox.Dock = DockStyle.Top;
+            this.tagsTextBox.Margin = new Padding(MARGIN);
+            this.tagsTextBox.KeyUp += new KeyEventHandler(tagsTextBox_KeyUp);
+            this.Controls.Add(this.tagsTextBox);
 
             // Add the "Yes" button
             this.yesButton = new Button();
@@ -95,7 +105,19 @@
             {
                 yesButton_Click(sender, e);
             }
+
+            if(e.KeyChar == (char)Keys.Escape)
+            {
+                noButton_Click(sender, e);
+            }
         }
+
+        private void tagsTextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            // Update the fileName variable with the contents of the tagsTextBox
+            fileName = tagsTextBox.Text + ".png";
+        }
+
 
     }
 
