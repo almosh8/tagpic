@@ -61,6 +61,8 @@
             this.noButton.Margin = new Padding(MARGIN);
             this.noButton.Click += new EventHandler(noButton_Click);
             this.Controls.Add(this.noButton);
+
+            this.AcceptButton = this.yesButton;
         }
 
         private void yesButton_Click(object sender, EventArgs e)
@@ -85,5 +87,16 @@
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
+
+        private void ImageConfirmationForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                yesButton_Click(sender, e);
+            }
+        }
+
     }
+
+
 }

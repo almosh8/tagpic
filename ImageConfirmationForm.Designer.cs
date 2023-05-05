@@ -38,6 +38,7 @@
             this.Name = "ImageConfirmationForm";
             this.Text = "ImageConfirmationForm";
             //this.Load += new System.EventHandler(this.ImageConfirmationForm_Load);
+            this.KeyPress += new KeyPressEventHandler(ImageConfirmationForm_KeyPress);
             this.ResumeLayout(false);
 
         }

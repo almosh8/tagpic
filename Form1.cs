@@ -84,6 +84,7 @@ namespace tagpic
             {
                 int vkCode = Marshal.ReadInt32(lParam);
                 Debug.WriteLine(vkCode);
+                Debug.WriteLine(Clipboard.ContainsImage());
 
                 if (vkCode == (int)Keys.Insert && Clipboard.ContainsImage())
                 {
@@ -98,8 +99,7 @@ namespace tagpic
                         // Load the image from the file and add it to the list
                         Image savedImage = form.image;
                         this.images.Insert(0, savedImage);
-
-                        // Display the images
+                                                // Display the images
                         display_images();
                     }
                 }
