@@ -54,6 +54,18 @@ namespace tagpic
             this.tagsTextBox.Margin = new Padding(MARGIN);
             this.tagsTextBox.KeyUp += new KeyEventHandler(tagsTextBox_KeyUp);
             this.tagsTextBox.Select();
+            this.tagsTextBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            this.tagsTextBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+            AutoCompleteStringCollection autoCompleteOptions = new AutoCompleteStringCollection();
+            // Retrieve the list of tags from the TagStorage
+            List<string> tagsList = TagsStorage.GetAllTags();
+
+            // Add the tags to the autoCompleteOptions collection
+            autoCompleteOptions.AddRange(tagsList.ToArray());
+
+            // Set the AutoCompleteCustomSource property of the TextBox to the autoCompleteOptions collection
+            this.tagsTextBox.AutoCompleteCustomSource = autoCompleteOptions;
             this.Controls.Add(this.tagsTextBox);
 
             // Add the "Yes" button

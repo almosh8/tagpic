@@ -35,6 +35,10 @@ namespace TagPic
             }
         }
 
+        public static List<string> GetAllTags()
+        {
+            return new List<string>(_tags.Keys);
+        }
         public static IEnumerable<string> GetTagsWithPrefix(string prefix)
         {
             return _tags.Keys.Where(tag => tag.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase));
