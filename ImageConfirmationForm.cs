@@ -1,4 +1,6 @@
-﻿namespace tagpic
+﻿using TagPic;
+
+namespace tagpic
 {
     public partial class ImageConfirmationForm : Form
     {
@@ -51,6 +53,7 @@
             this.tagsTextBox.Dock = DockStyle.Top;
             this.tagsTextBox.Margin = new Padding(MARGIN);
             this.tagsTextBox.KeyUp += new KeyEventHandler(tagsTextBox_KeyUp);
+            this.tagsTextBox.Select();
             this.Controls.Add(this.tagsTextBox);
 
             // Add the "Yes" button
@@ -86,6 +89,7 @@
 
             // Save the image to the file
             this.image.Save(filePath);
+            TagsStorage.AddTags(tagsTextBox.Text);
 
             // Close the form with the result set to OK
             this.DialogResult = DialogResult.OK;
@@ -115,7 +119,8 @@
         private void tagsTextBox_KeyUp(object sender, KeyEventArgs e)
         {
             // Update the fileName variable with the contents of the tagsTextBox
-            fileName = tagsTextBox.Text + ".png";
+            fileName =  tagsTextBox.Text + 
+                        "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
         }
 
 
