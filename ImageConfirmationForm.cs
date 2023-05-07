@@ -1,4 +1,5 @@
-﻿using TagPic;
+﻿using System.Diagnostics;
+using TagPic;
 
 namespace tagpic
 {
@@ -16,14 +17,17 @@ namespace tagpic
 
         private PictureBox pictureBox;
         private Label label;
-        private TextBox tagsTextBox; // Added new control for entering tags
         private Button yesButton;
         private Button noButton;
+        private FlowLayoutPanel tagsFlowLayout; // Added new control for displaying tags
+        private TextBox tagsTextBox; // Added new control for entering tags
+
 
         public ImageConfirmationForm(Image image)
         {
             InitializeComponent();
             this.WindowState = FormWindowState.Maximized;
+            //this.KeyPress += new KeyPressEventHandler(ImageConfirmationForm_KeyPress);
 
             this.image = image;
             this.fileName = "image_" + DateTime.Now.ToString("yyyyMMddHHmmss"); // Removed ".png" extension from file name
@@ -46,16 +50,25 @@ namespace tagpic
             this.label.Padding = new Padding(MARGIN);
             this.Controls.Add(this.label);
 
+            this.tagsFlowLayout = new FlowLayoutPanel();
+            this.tagsFlowLayout.Dock = DockStyle.Top;
+            this.tagsFlowLayout.Padding = new Padding(MARGIN);
+            this.tagsFlowLayout.FlowDirection = FlowDirection.LeftToRight;
+            this.Controls.Add(tagsFlowLayout);
+
             // Add the textbox for entering tags
             this.tagsTextBox = new TextBox();
             this.tagsTextBox.Width = FORM_WIDTH - (2 * MARGIN);
             this.tagsTextBox.Height = BUTTON_HEIGHT;
             this.tagsTextBox.Dock = DockStyle.Top;
             this.tagsTextBox.Margin = new Padding(MARGIN);
-            this.tagsTextBox.KeyUp += new KeyEventHandler(tagsTextBox_KeyUp);
+            this.tagsTextBox.KeyDown += new KeyEventHandler(tagsTextBox_KeyDown);
+            this.tagsTextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(tagsTextBox_PreviewKeyDown);
             this.tagsTextBox.Select();
+
             this.tagsTextBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             this.tagsTextBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
 
             AutoCompleteStringCollection autoCompleteOptions = new AutoCompleteStringCollection();
             // Retrieve the list of tags from the TagStorage
@@ -66,7 +79,7 @@ namespace tagpic
 
             // Set the AutoCompleteCustomSource property of the TextBox to the autoCompleteOptions collection
             this.tagsTextBox.AutoCompleteCustomSource = autoCompleteOptions;
-            this.Controls.Add(this.tagsTextBox);
+            this.tagsFlowLayout.Controls.Add(this.tagsTextBox);
 
             // Add the "Yes" button
             this.yesButton = new Button();
@@ -88,12 +101,20 @@ namespace tagpic
             this.noButton.Click += new EventHandler(noButton_Click);
             this.Controls.Add(this.noButton);
 
+
             this.AcceptButton = this.yesButton;
+
+            //Debug.WriteLine(this.noButton.Text);
+
         }
 
         private void yesButton_Click(object sender, EventArgs e)
         {
             // Set the default file name and location
+
+            AddNewTag();
+
+
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", this.fileName);
 
             // Create the directory if it doesn't exist
@@ -101,7 +122,7 @@ namespace tagpic
 
             // Save the image to the file
             this.image.Save(filePath);
-            TagsStorage.AddTags(tagsTextBox.Text);
+            TagsStorage.AddTags(filePath);
 
             // Close the form with the result set to OK
             this.DialogResult = DialogResult.OK;
@@ -115,28 +136,77 @@ namespace tagpic
             this.Close();
         }
 
-        private void ImageConfirmationForm_KeyPress(object sender, KeyPressEventArgs e)
+        private void AddNewTag()
         {
-            if (e.KeyChar == (char)Keys.Enter)
+            TagsStorage.AddTag(tagsTextBox.Text);
+
+            // Create a new tagTextBox for entering the next tag
+            var newTagTextBox = new TextBox();
+            newTagTextBox.Width = FORM_WIDTH - (2 * MARGIN);
+            newTagTextBox.Height = BUTTON_HEIGHT;
+            newTagTextBox.Margin = new Padding(MARGIN, 0, MARGIN, MARGIN);
+            newTagTextBox.KeyDown += new KeyEventHandler(tagsTextBox_KeyDown);
+            newTagTextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(tagsTextBox_PreviewKeyDown);
+            newTagTextBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            newTagTextBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+            List<string> tagsList = TagsStorage.GetAllTags();
+            // Add the tags to the autoCompleteOptions collection
+            var newAutoCompleteOptions = new AutoCompleteStringCollection();
+            newAutoCompleteOptions.AddRange(tagsList.ToArray());
+
+            // Set the AutoCompleteCustomSource property of the TextBox to the autoCompleteOptions collection
+            newTagTextBox.AutoCompleteCustomSource = newAutoCompleteOptions;
+
+            tagsFlowLayout.Controls.Add(newTagTextBox);
+            newTagTextBox.Select();
+            this.tagsTextBox.Enabled = false;
+            this.tagsTextBox = newTagTextBox;
+        }
+
+        private void tagsTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            Debug.WriteLine(tagsTextBox.Text);
+
+            List<string> tagsList = TagsStorage.GetAllTags();
+
+            Debug.WriteLine(e.KeyCode);
+
+            if (e.KeyCode == Keys.Space)
+            {
+                AddNewTag();
+            }
+
+            if (e.KeyCode == Keys.Right &&
+            tagsList.Contains(tagsTextBox.Text))
+            {
+                AddNewTag();
+            }
+
+            if (e.KeyCode == Keys.Enter)
             {
                 yesButton_Click(sender, e);
             }
 
-            if(e.KeyChar == (char)Keys.Escape)
+            if (e.KeyCode == Keys.Escape)
             {
                 noButton_Click(sender, e);
             }
+
+
         }
 
-        private void tagsTextBox_KeyUp(object sender, KeyEventArgs e)
+        private void tagsTextBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            // Update the fileName variable with the contents of the tagsTextBox
-            fileName =  tagsTextBox.Text + 
-                        "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
-        }
+            List<string> tagsList = TagsStorage.GetAllTags();
 
+            if (e.KeyCode == Keys.Tab &&
+            tagsList.Contains(tagsTextBox.Text))
+            {
+                AddNewTag();
+                e.IsInputKey = true;
+            }
+        }
 
     }
-
-
 }

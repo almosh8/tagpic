@@ -8,11 +8,13 @@ namespace TagPic
     public static class TagsStorage
     {
         private static Dictionary<string, int> _tags;
+        private static List<string> _tagsList;
 
         static TagsStorage()
         {
             // Initialize the dictionary with tags from the text file
             _tags = new Dictionary<string, int>();
+            _tagsList = new List<string>();
 
             string tagsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "tags.txt");
 
@@ -31,17 +33,18 @@ namespace TagPic
                     string tag = parts[0].Trim();
                     int count = int.Parse(parts[1].Trim());
                     _tags[tag] = count;
+                    _tagsList.Add(tag);
                 }
             }
         }
 
         public static List<string> GetAllTags()
         {
-            return new List<string>(_tags.Keys);
+            return _tagsList;
         }
         public static IEnumerable<string> GetTagsWithPrefix(string prefix)
         {
-            return _tags.Keys.Where(tag => tag.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase));
+            return _tagsList.Where(tag => tag.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase));
         }
 
         public static void AddTags(string tagString)
@@ -50,19 +53,25 @@ namespace TagPic
 
             foreach (string tag in tags)
             {
-                string normalizedTag = tag.Trim().ToLowerInvariant();
+                AddTag(tag);
 
-                if (!_tags.ContainsKey(normalizedTag))
-                {
-                    _tags.Add(normalizedTag, 1);
-                }
-                else
-                {
-                    _tags[normalizedTag]++;
-                }
+                SaveTagsToFile();
             }
+        }
 
-            SaveTagsToFile();
+        public static void AddTag(string tag)
+        {
+            string normalizedTag = tag.Trim().ToLowerInvariant();
+
+            if (!_tags.ContainsKey(normalizedTag))
+            {
+                _tags.Add(normalizedTag, 1);
+                _tagsList.Add(normalizedTag);
+            }
+            else
+            {
+                _tags[normalizedTag]++;
+            }
         }
 
         private static void SaveTagsToFile()
