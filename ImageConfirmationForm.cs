@@ -3,6 +3,7 @@ using TagPic;
 
 namespace tagpic
 {
+    
     public partial class ImageConfirmationForm : Form
     {
         private const int FORM_WIDTH = 500;
@@ -12,7 +13,7 @@ namespace tagpic
         private const int MARGIN = 10;
 
         public Image image;
-        private string fileName;
+        public string fileName;
         private string tags; // Added new field to store tags entered by the user
 
         private PictureBox pictureBox;
@@ -43,7 +44,9 @@ namespace tagpic
 
             // Add the label asking the user to confirm
             this.label = new Label();
-            this.label.Text = "Do you want to add this image?";
+            this.label.Text = "Enter tags for this image." +
+                "Press Tab or Space buttons to add new tag." +
+                "Press Enter to save picture";
             this.label.Font = new Font(this.label.Font.FontFamily, 14, FontStyle.Bold);
             this.label.AutoSize = true;
             this.label.Dock = DockStyle.Top;
@@ -140,8 +143,11 @@ namespace tagpic
 
         private void AddNewTag()
         {
+            if (tagsTextBox.Text.Length == 0)
+                return;
+
             TagsStorage.AddTag(tagsTextBox.Text);
-            fileName += tagsTextBox.Text + '_';
+            fileName += '_' + tagsTextBox.Text;
 
             // Create a new tagTextBox for entering the next tag
             var newTagTextBox = new TextBox();
