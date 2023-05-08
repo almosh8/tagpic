@@ -228,7 +228,7 @@ namespace tagpic
             int y = 0;
             foreach (ImageWithTags imageWithTags in images)
             {
-                if (selectedTags.Count == 0 || imageWithTags.Tags.Any(tag => selectedTags.Contains(tag)))
+                if (selectedTags.Count == 0 || imageWithTags.Tags.All(tag => selectedTags.Contains(tag)))
                 {
                     PictureBox pictureBox = new PictureBox();
                     pictureBox.Image = imageWithTags.Image;
