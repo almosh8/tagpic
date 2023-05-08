@@ -44,6 +44,7 @@ namespace tagpic
                 // Handle the key press
                 ImageConfirmationForm form = new ImageConfirmationForm(Clipboard.GetImage());
                 form.TopMost = true; // Set TopMost property to true
+                form.Activate();
                 DialogResult result = form.ShowDialog();
                 if (result == DialogResult.OK)
                 {

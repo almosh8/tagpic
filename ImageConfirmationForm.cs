@@ -114,11 +114,13 @@ namespace tagpic
 
             AddNewTag();
 
-
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", this.fileName);
+            string filePath = Path.Combine(
+                Directory.GetCurrentDirectory(), 
+                "Images", this.fileName + ".png");
 
             // Create the directory if it doesn't exist
-            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            Directory.CreateDirectory(
+                Path.GetDirectoryName(filePath));
 
             // Save the image to the file
             this.image.Save(filePath);
@@ -139,6 +141,7 @@ namespace tagpic
         private void AddNewTag()
         {
             TagsStorage.AddTag(tagsTextBox.Text);
+            fileName += tagsTextBox.Text + '_';
 
             // Create a new tagTextBox for entering the next tag
             var newTagTextBox = new TextBox();
