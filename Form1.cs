@@ -49,13 +49,12 @@ namespace tagpic
 
         private void GlobalHookKeyDown(object sender, KeyEventArgs e)
         {
-            Debug.WriteLine(e.KeyCode);
-            if (e.KeyCode == Keys.Insert && Clipboard.ContainsImage())
+            //Debug.WriteLine(e.KeyCode);
+            if (e.KeyCode == Keys.Oemtilde && Clipboard.ContainsImage())
             {
                 // Handle the key press
                 ImageConfirmationForm form = new ImageConfirmationForm(Clipboard.GetImage());
-                form.TopMost = true; // Set TopMost property to true
-                form.Activate();
+                form.TopMost = true; // TODO find a better way to open new window automatically
                 DialogResult result = form.ShowDialog();
                 if (result == DialogResult.OK)
                 {
@@ -107,9 +106,9 @@ namespace tagpic
 
             // Add the label asking the user to confirm
             this.label = new Label();
-            this.label.Text = "Enter tags for this image." +
-                "Press Tab or Space buttons to add new tag." +
-                "Press Enter to save picture";
+            this.label.Text = "Enter tag in this field to filter pictures. " +
+                "Press ` button to add new picture. " +
+                "Click on the selected picture if you want to copy and delete it.";
             this.label.Font = new Font(this.label.Font.FontFamily, 14, FontStyle.Bold);
             this.label.AutoSize = true;
             this.label.Dock = DockStyle.Top;
@@ -169,10 +168,19 @@ namespace tagpic
 
             if (e.KeyCode == Keys.Escape)
             {
-                //noButton_Click(sender, e);
+                clearTags();
             }
 
 
+        }
+
+        private void clearTags()
+        {
+            selectedTags.Clear();
+            tagsFlowLayout.Controls.Clear();
+            tagsFlowLayout.Controls.Add(tagsTextBox);
+
+            display_images();
         }
 
         private void tagsTextBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)

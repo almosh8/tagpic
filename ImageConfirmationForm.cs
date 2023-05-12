@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using TagPic;
 
@@ -7,10 +8,11 @@ namespace tagpic
     
     public partial class ImageConfirmationForm : Form
     {
-        private const int FORM_WIDTH = 500;
-        private const int FORM_HEIGHT = 350; // Increased form height to accommodate the new control
+        private const int FORM_WIDTH = 1666;
+        private const int FORM_HEIGHT = 1000; // Increased form height to accommodate the new control
         private const int BUTTON_WIDTH = 75;
         private const int BUTTON_HEIGHT = 30;
+        private const int TAGBOX_WIDTH = 333;
         private const int MARGIN = 10;
 
         public Image image;
@@ -28,15 +30,14 @@ namespace tagpic
         public ImageConfirmationForm(Image image)
         {
             InitializeComponent();
-            this.WindowState = FormWindowState.Maximized;
-            this.TopMost = true;
-            this.Select();
             //this.KeyPress += new KeyPressEventHandler(ImageConfirmationForm_KeyPress);
 
             this.image = image;
             this.fileName = "image_" + DateTime.Now.ToString("yyyyMMddHHmmss"); // Removed ".png" extension from file name
 
             //this.ClientSize = new Size(FORM_WIDTH, FORM_HEIGHT);
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Activate();
 
             // Add the picture box to display the image
             this.pictureBox = new PictureBox();
@@ -64,7 +65,7 @@ namespace tagpic
 
             // Add the textbox for entering tags
             this.tagsTextBox = new TextBox();
-            this.tagsTextBox.Width = FORM_WIDTH - (2 * MARGIN);
+            this.tagsTextBox.Width = TAGBOX_WIDTH - (2 * MARGIN);
             this.tagsTextBox.Height = BUTTON_HEIGHT;
             this.tagsTextBox.Dock = DockStyle.Top;
             this.tagsTextBox.Margin = new Padding(MARGIN);
@@ -110,6 +111,7 @@ namespace tagpic
 
             this.AcceptButton = this.yesButton;
             this.CancelButton = this.noButton;
+            this.Select();
 
             //Debug.WriteLine(this.noButton.Text);
 
@@ -155,7 +157,7 @@ namespace tagpic
 
             // Create a new tagTextBox for entering the next tag
             var newTagTextBox = new TextBox();
-            newTagTextBox.Width = FORM_WIDTH - (2 * MARGIN);
+            newTagTextBox.Width = TAGBOX_WIDTH - (2 * MARGIN);
             newTagTextBox.Height = BUTTON_HEIGHT;
             newTagTextBox.Margin = new Padding(MARGIN, 0, MARGIN, MARGIN);
             newTagTextBox.KeyDown += new KeyEventHandler(tagsTextBox_KeyDown);
@@ -212,6 +214,10 @@ namespace tagpic
         private void tagsTextBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             List<string> tagsList = TagsStorage.GetAllTags();
+
+            if (e.KeyCode == Keys.Oemtilde
+                && this.tagsTextBox.Text.Length == 0)
+                e.IsInputKey = false;
 
             if (e.KeyCode == Keys.Tab &&
             tagsList.Contains(tagsTextBox.Text))
