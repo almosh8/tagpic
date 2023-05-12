@@ -12,7 +12,7 @@ namespace tagpic
         private const int BUTTON_HEIGHT = 30;
         private const int MARGIN = 10;
 
-        public Image image;
+        public ImageWithTags imageWithTags;
         public string fileName;
         private string tags; // Added new field to store tags entered by the user
 
@@ -30,13 +30,13 @@ namespace tagpic
             this.WindowState = FormWindowState.Maximized;
             //this.KeyPress += new KeyPressEventHandler(ImageConfirmationForm_KeyPress);
 
-            this.image = imageWithTags.Image;
+            this.imageWithTags = imageWithTags;
 
             //this.ClientSize = new Size(FORM_WIDTH, FORM_HEIGHT);
 
             // Add the picture box to display the image
             this.pictureBox = new PictureBox();
-            this.pictureBox.Image = this.image;
+            this.pictureBox.Image = this.imageWithTags.Image;
             this.pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             this.pictureBox.Dock = DockStyle.Fill;
             this.Controls.Add(this.pictureBox);
@@ -81,7 +81,18 @@ namespace tagpic
 
         private void yesButton_Click(object sender, EventArgs e)
         {
-            
+            string filePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "Removed_Images", this.imageWithTags.fileName);
+
+            // Create the directory if it doesn't exist
+            Directory.CreateDirectory(
+                Path.GetDirectoryName(filePath));
+
+            // Backup the image to the file
+            this.imageWithTags.Image.Save(filePath);
+
+            // Close the form with the result set to OK
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

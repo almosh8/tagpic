@@ -258,11 +258,8 @@ namespace tagpic
             DialogResult result = form.ShowDialog();
             if (result == DialogResult.OK)
             {
-                // Get the file path from the confirmation form
-                string fileName = form.fileName;
 
-                // Load the image from the file and add it to the list
-                Image savedImage = form.image;
+                // Remove the image from the list
                 this.images.Remove(imageWithTags);
                 // Display the images
                 display_images();

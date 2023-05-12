@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Windows.Forms.VisualStyles;
 using TagPic;
 
 namespace tagpic
@@ -28,6 +29,8 @@ namespace tagpic
         {
             InitializeComponent();
             this.WindowState = FormWindowState.Maximized;
+            this.TopMost = true;
+            this.Select();
             //this.KeyPress += new KeyPressEventHandler(ImageConfirmationForm_KeyPress);
 
             this.image = image;
