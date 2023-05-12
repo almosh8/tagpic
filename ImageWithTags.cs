@@ -10,17 +10,14 @@ namespace tagpic
     {
         public Image Image { get; set; }
         public List<string> Tags { get; set; }
+        public string fileName { get; set; }
 
-        public ImageWithTags(Image image, List<string> tags)
-        {
-            this.Image = image;
-            this.Tags = tags;
-        }
         public ImageWithTags(Image image, string fileName)
         {
             this.Image = image;
             string name = Path.GetFileNameWithoutExtension(fileName);
             this.Tags = name.Split('_').Skip(2).ToList();
+            this.fileName = fileName;
         }
     }
 }

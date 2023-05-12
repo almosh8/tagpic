@@ -106,6 +106,7 @@ namespace tagpic
 
 
             this.AcceptButton = this.yesButton;
+            this.CancelButton = this.noButton;
 
             //Debug.WriteLine(this.noButton.Text);
 

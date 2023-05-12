@@ -235,6 +235,8 @@ namespace tagpic
                     pictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
                     pictureBox.Location = new Point(0, y);
                     pictureBox.MouseClick += new MouseEventHandler(pictureClicked);
+                    pictureBox.Tag = imageWithTags;
+                    //TODO make cursour change when pointed on pictureBox
                     this.panel.Controls.Add(pictureBox);
                     y += pictureBox.Height + PANEL_MARGIN;
                 }
@@ -247,8 +249,26 @@ namespace tagpic
         private void pictureClicked(object sender, MouseEventArgs e)
         {
             PictureBox pictureBox = (PictureBox)sender;
-            Clipboard.SetImage(pictureBox.Image);
-            Debug.WriteLine("pic clicked");
+            ImageWithTags imageWithTags = (ImageWithTags)pictureBox.Tag;
+            Clipboard.SetImage(imageWithTags.Image);
+
+            ImageDeletingForm form = new ImageDeletingForm(imageWithTags);
+            form.TopMost = true; // Set TopMost property to true
+            form.Activate();
+            DialogResult result = form.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                // Get the file path from the confirmation form
+                string fileName = form.fileName;
+
+                // Load the image from the file and add it to the list
+                Image savedImage = form.image;
+                this.images.Remove(imageWithTags);
+                // Display the images
+                display_images();
+            }
+
+
         }
     }
 }
