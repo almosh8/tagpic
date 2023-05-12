@@ -190,8 +190,8 @@ namespace tagpic
         {
             if (tagsTextBox.Text.Length == 0)
                 return;
-
-            selectedTags.Add(tagsTextBox.Text);
+            
+            selectedTags.Add(tagsTextBox.Text.Trim());
 
             // Create a new tagTextBox for entering the next tag
             var newTagTextBox = new TextBox();
@@ -228,12 +228,13 @@ namespace tagpic
             int y = 0;
             foreach (ImageWithTags imageWithTags in images)
             {
-                if (selectedTags.Count == 0 || imageWithTags.Tags.All(tag => selectedTags.Contains(tag)))
+                if (selectedTags.Count == 0 || selectedTags.All(tag => imageWithTags.Tags.Contains(tag)))
                 {
                     PictureBox pictureBox = new PictureBox();
                     pictureBox.Image = imageWithTags.Image;
                     pictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
                     pictureBox.Location = new Point(0, y);
+                    pictureBox.MouseClick += new MouseEventHandler(pictureClicked);
                     this.panel.Controls.Add(pictureBox);
                     y += pictureBox.Height + PANEL_MARGIN;
                 }
@@ -241,6 +242,13 @@ namespace tagpic
 
             // Resize the panel to fit the images
             this.panel.Height = y;
+        }
+
+        private void pictureClicked(object sender, MouseEventArgs e)
+        {
+            PictureBox pictureBox = (PictureBox)sender;
+            Clipboard.SetImage(pictureBox.Image);
+            Debug.WriteLine("pic clicked");
         }
     }
 }
