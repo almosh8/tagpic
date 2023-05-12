@@ -49,6 +49,7 @@ namespace tagpic
 
         private void GlobalHookKeyDown(object sender, KeyEventArgs e)
         {
+            Debug.WriteLine(e.KeyCode);
             if (e.KeyCode == Keys.Insert && Clipboard.ContainsImage())
             {
                 // Handle the key press
