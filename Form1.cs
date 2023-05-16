@@ -149,11 +149,11 @@ namespace tagpic
 
         private void tagsTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            Debug.WriteLine(tagsTextBox.Text);
+            //Debug.WriteLine(tagsTextBox.Text);
 
             List<string> tagsList = TagsStorage.GetAllTags();
 
-            Debug.WriteLine(e.KeyCode);
+            //Debug.WriteLine(e.KeyCode);
 
             if (e.KeyCode == Keys.Space)
             {

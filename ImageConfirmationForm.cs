@@ -71,6 +71,7 @@ namespace tagpic
             this.tagsTextBox.Margin = new Padding(MARGIN);
             this.tagsTextBox.KeyDown += new KeyEventHandler(tagsTextBox_KeyDown);
             this.tagsTextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(tagsTextBox_PreviewKeyDown);
+            this.tagsTextBox.TextChanged += new EventHandler(textBox_TextChanged);
             this.tagsTextBox.Select();
 
             this.tagsTextBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -164,6 +165,8 @@ namespace tagpic
             newTagTextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(tagsTextBox_PreviewKeyDown);
             newTagTextBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             newTagTextBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            newTagTextBox.TextChanged += new EventHandler(textBox_TextChanged);
+
 
             List<string> tagsList = TagsStorage.GetAllTags();
             // Add the tags to the autoCompleteOptions collection
@@ -181,7 +184,8 @@ namespace tagpic
 
         private void tagsTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            Debug.WriteLine(tagsTextBox.Text);
+            //Debug.WriteLine(tagsTextBox.Text);
+                
 
             List<string> tagsList = TagsStorage.GetAllTags();
 
@@ -213,11 +217,8 @@ namespace tagpic
 
         private void tagsTextBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
+            Debug.WriteLine(tagsTextBox.Text);
             List<string> tagsList = TagsStorage.GetAllTags();
-
-            if (e.KeyCode == Keys.Oemtilde
-                && this.tagsTextBox.Text.Length == 0)
-                e.IsInputKey = false;
 
             if (e.KeyCode == Keys.Tab &&
             tagsList.Contains(tagsTextBox.Text))
@@ -227,5 +228,10 @@ namespace tagpic
             }
         }
 
+        private void textBox_TextChanged(object sender, EventArgs e)
+        {
+            var box = (TextBox)sender;
+            if (box.Text.StartsWith("`")) box.Text = "";
+        }
     }
 }
