@@ -49,12 +49,11 @@ namespace tagpic
 
         private void GlobalHookKeyDown(object sender, KeyEventArgs e)
         {
-            //Debug.WriteLine(e.KeyCode);
+            Debug.WriteLine(e.KeyCode);
             if (e.KeyCode == Keys.Oemtilde && Clipboard.ContainsImage())
             {
                 // Handle the key press
                 ImageConfirmationForm form = new ImageConfirmationForm(Clipboard.GetImage());
-                form.TopMost = true; // TODO find a better way to open new window automatically
                 DialogResult result = form.ShowDialog();
                 if (result == DialogResult.OK)
                 {

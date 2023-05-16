@@ -112,7 +112,11 @@ namespace tagpic
 
             this.AcceptButton = this.yesButton;
             this.CancelButton = this.noButton;
+
+            this.TopMost = true; // TODO find a better way to open new window automatically
             this.Select();
+            this.Activate();
+            this.Focus();
 
             //Debug.WriteLine(this.noButton.Text);
 
@@ -231,7 +235,7 @@ namespace tagpic
         private void textBox_TextChanged(object sender, EventArgs e)
         {
             var box = (TextBox)sender;
-            if (box.Text.StartsWith("`")) box.Text = "";
+            if (box.Text.StartsWith("`") || box.Text.StartsWith("ё")) box.Text = "";
         }
     }
 }
