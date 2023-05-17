@@ -40,6 +40,17 @@ namespace tagpic
 
             m_GlobalHook = Hook.GlobalEvents();
             m_GlobalHook.KeyDown += GlobalHookKeyDown;
+
+            var processStartInfo = new ProcessStartInfo
+            {
+                Arguments = "tagpic_macro.py",
+                FileName = "Python",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            };
+
+            Process.Start(processStartInfo);
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -50,11 +61,15 @@ namespace tagpic
         private void GlobalHookKeyDown(object sender, KeyEventArgs e)
         {
             Debug.WriteLine(e.KeyCode);
-            if (e.KeyCode == Keys.Oemtilde && Clipboard.ContainsImage())
+            if (e.KeyCode == Keys.Oemtilde && 
+                Clipboard.ContainsImage() &&
+                !isAddingImage)
             {
+                isAddingImage = true;
                 // Handle the key press
                 ImageConfirmationForm form = new ImageConfirmationForm(Clipboard.GetImage());
                 DialogResult result = form.ShowDialog();
+                isAddingImage = false;
                 if (result == DialogResult.OK)
                 {
                     // Get the file path from the confirmation form
@@ -90,9 +105,25 @@ namespace tagpic
             this.panel.Location = new Point((scrollableControl.ClientSize.Width - this.panel.Width) / 2, PANEL_MARGIN);
 
             // Load any previously saved images
-            string imageDir = Path.Combine(Directory.GetCurrentDirectory(), "Images");
-            DirectoryInfo di = new DirectoryInfo(imageDir);
-            FileInfo[] imageFiles = di.GetFiles("*.png");
+            FileInfo[] imageFiles;
+            try
+            {
+                string imageDir = Path.Combine(Directory.GetCurrentDirectory(), "Images");
+                DirectoryInfo di = new DirectoryInfo(imageDir);
+                imageFiles = di.GetFiles("*.png");
+            }
+            catch
+            {
+                imageFiles = Array.Empty<FileInfo>();
+
+                this.label = new Label();
+                this.label.Text = "No pics saved yet";
+                this.label.Font = new Font(this.label.Font.FontFamily, 14, FontStyle.Bold);
+                this.label.AutoSize = true;
+                this.label.Dock = DockStyle.Top;
+                this.label.Padding = new Padding(MARGIN);
+                this.Controls.Add(this.label);
+            }
 
             images = new List<ImageWithTags>();
             foreach (FileInfo file in imageFiles)
