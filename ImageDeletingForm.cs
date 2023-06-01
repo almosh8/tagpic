@@ -81,16 +81,7 @@ namespace tagpic
 
         private void yesButton_Click(object sender, EventArgs e)
         {
-            string filePath = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "Removed_Images", this.imageWithTags.fileName);
-
-            // Create the directory if it doesn't exist
-            Directory.CreateDirectory(
-                Path.GetDirectoryName(filePath));
-
-            // Backup the image to the file
-            this.imageWithTags.Image.Save(filePath);
+            
 
             // Close the form with the result set to OK
             this.DialogResult = DialogResult.OK;

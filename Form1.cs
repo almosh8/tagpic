@@ -302,7 +302,46 @@ namespace tagpic
                 this.images.Remove(imageWithTags);
                 // Display the images
                 display_images();
+
+                // Remove the file
+                string Removed_ImagesFilePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "Removed_Images", imageWithTags.fileName);
+                string Saved_ImagesFilePath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "Images", imageWithTags.fileName);
+
+                try
+                {
+
+                    imageWithTags.Image.Dispose();
+                if (File.Exists(Removed_ImagesFilePath))
+                {
+                    File.Delete(Saved_ImagesFilePath);
+                }
+                // Check if the source file exists
+                else if (File.Exists(Saved_ImagesFilePath))
+                {
+                    // Create the destination folder if it doesn't exist
+                    if (!Directory.Exists(Removed_ImagesFilePath))
+                    {
+                        Directory.CreateDirectory(Removed_ImagesFilePath);
+                    }
+
+                    // Move the file
+                    File.Move(Saved_ImagesFilePath, Removed_ImagesFilePath);
+                    MessageBox.Show("File moved successfully!");
+                }
+                else
+                {
+                    MessageBox.Show("Source file not found!");
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred: " + ex.Message);
+            }
+        }
 
 
         }
